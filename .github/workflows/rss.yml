@@ -41,13 +41,6 @@ jobs:
           token: ${{ secrets.SUBSCRIBER_REPO_TOKEN }}
           path: private-subscribers
 
-      - name: Test private subscriber list
-        run: |
-          echo "Private subscriber repository downloaded."
-          echo "Checking subscribers.json..."
-          test -f private-subscribers/subscribers.json
-          echo "subscribers.json found successfully."
-
       - name: Send email notification
         if: success()
         env:
