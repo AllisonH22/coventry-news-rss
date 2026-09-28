@@ -1,56 +1,96 @@
-import requests
+from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from email.utils import format_datetime
 from datetime import datetime, timezone
 import re
 import xml.etree.ElementTree as ET
+import time
 
 NEWS_URL = "https://www.coventrypublicschools.org/news"
 BASE_URL = "https://www.coventrypublicschools.org"
 
-headers = {
-    "User-Agent": "Mozilla/5.0"
-}
+print("Opening Coventry Public Schools news page...")
 
-response = requests.get(
-    NEWS_URL,
-    headers=headers,
-    timeout=30
-)
+with sync_playwright() as p:
 
-response.raise_for_status()
+    browser = p.chromium.launch(
+        headless=True
+    )
 
-soup = BeautifulSoup(response.text, "html.parser")
+    page = browser.new_page(
+        viewport={
+            "width": 1440,
+            "height": 1200
+        }
+    )
+
+    page.goto(
+        NEWS_URL,
+        wait_until="domcontentloaded",
+        timeout=60000
+    )
+
+    print("Page loaded.")
+
+    # Give Apptegy's JavaScript time to render the news.
+    page.wait_for_timeout(8000)
+
+    # Scroll down so lazy-loaded news items have a chance to appear.
+    for _ in range(5):
+        page.mouse.wheel(0, 1500)
+        page.wait_for_timeout(1500)
+
+    # Capture the fully rendered HTML.
+    html = page.content()
+
+    browser.close()
+
+
+print(f"Rendered page size: {len(html)} characters")
+
+soup = BeautifulSoup(html, "html.parser")
 
 articles = []
 
-# Find every link whose URL contains /article/
+
+# Find article links in the rendered page.
 for link in soup.find_all("a", href=True):
 
     href = link.get("href", "")
 
-    match = re.search(r"/article/(\d+)", href)
+    match = re.search(
+        r"/article/(\d+)",
+        href
+    )
 
     if not match:
         continue
 
     article_id = match.group(1)
 
-    title = link.get_text(" ", strip=True)
+    title = link.get_text(
+        " ",
+        strip=True
+    )
 
     if not title:
         continue
 
-    article_url = urljoin(BASE_URL, f"/article/{article_id}")
+    article_url = urljoin(
+        BASE_URL,
+        f"/article/{article_id}"
+    )
 
-    # Don't add the same article twice
-    if any(a["url"] == article_url for a in articles):
+    # Avoid duplicates.
+    if any(
+        article["url"] == article_url
+        for article in articles
+    ):
         continue
 
-    # Look around the link for a date
+    # Try to find a publication date near the article.
     parent = link
-
     date_text = ""
 
     for _ in range(8):
@@ -60,12 +100,16 @@ for link in soup.find_all("a", href=True):
         if not parent:
             break
 
-        text = parent.get_text(" ", strip=True)
+        surrounding_text = parent.get_text(
+            " ",
+            strip=True
+        )
 
         date_match = re.search(
-            r"(January|February|March|April|May|June|July|August|September|October|November|December)"
+            r"(January|February|March|April|May|June|July|August|"
+            r"September|October|November|December)"
             r"\s+\d{1,2},\s+\d{4}",
-            text,
+            surrounding_text,
             re.IGNORECASE
         )
 
@@ -73,17 +117,21 @@ for link in soup.find_all("a", href=True):
             date_text = date_match.group(0)
             break
 
-    # Convert date
+    # Parse date if possible.
     try:
 
         published = datetime.strptime(
             date_text,
             "%B %d, %Y"
-        ).replace(tzinfo=timezone.utc)
+        ).replace(
+            tzinfo=timezone.utc
+        )
 
     except ValueError:
 
-        published = datetime.now(timezone.utc)
+        published = datetime.now(
+            timezone.utc
+        )
 
     articles.append({
         "title": title,
@@ -92,28 +140,53 @@ for link in soup.find_all("a", href=True):
     })
 
 
-# Remove duplicates
+# Remove duplicates.
 unique_articles = {}
 
 for article in articles:
-    unique_articles[article["url"]] = article
+    unique_articles[
+        article["url"]
+    ] = article
 
-articles = list(unique_articles.values())
+articles = list(
+    unique_articles.values()
+)
 
-# Newest first
+
+# Newest first.
 articles.sort(
-    key=lambda x: x["published"],
+    key=lambda article: article["published"],
     reverse=True
 )
 
-# Keep latest 50
+
+# Keep the 50 newest.
 articles = articles[:50]
 
 
-# Create RSS
+print(
+    f"Found {len(articles)} Coventry news articles."
+)
+
+
+# If nothing was found, fail the workflow instead of
+# replacing a working feed with an empty feed.
+if not articles:
+
+    print("")
+    print("ERROR: No Coventry articles were found.")
+    print("The rendered page did not contain /article/######## links.")
+    print("The existing feed.xml will NOT be replaced.")
+
+    raise SystemExit(1)
+
+
+# Create RSS document.
 rss = ET.Element(
     "rss",
-    {"version": "2.0"}
+    {
+        "version": "2.0"
+    }
 )
 
 channel = ET.SubElement(
@@ -134,7 +207,9 @@ ET.SubElement(
 ET.SubElement(
     channel,
     "description"
-).text = "Latest news from Coventry Public Schools"
+).text = (
+    "Latest news from Coventry Public Schools"
+)
 
 ET.SubElement(
     channel,
@@ -142,6 +217,7 @@ ET.SubElement(
 ).text = "en-us"
 
 
+# Add articles.
 for article in articles:
 
     item = ET.SubElement(
@@ -162,7 +238,9 @@ for article in articles:
     ET.SubElement(
         item,
         "guid",
-        {"isPermaLink": "true"}
+        {
+            "isPermaLink": "true"
+        }
     ).text = article["url"]
 
     ET.SubElement(
@@ -181,6 +259,7 @@ for article in articles:
     )
 
 
+# Write feed.xml.
 tree = ET.ElementTree(rss)
 
 tree.write(
@@ -190,5 +269,5 @@ tree.write(
 )
 
 print(
-    f"Found {len(articles)} Coventry news articles."
+    "Successfully generated feed.xml."
 )
