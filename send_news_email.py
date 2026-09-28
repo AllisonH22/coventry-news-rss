@@ -248,7 +248,7 @@ with smtplib.SMTP(
 
     smtp.login(
         SMTP_USERNAME,
-        SMTP_PASSWORD
+        SMTP_P
     )
 
     smtp.send_message(
