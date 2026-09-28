@@ -6,17 +6,81 @@ from datetime import datetime, timezone
 import re
 import xml.etree.ElementTree as ET
 
+
+# ---------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------
+
 NEWS_URL = "https://www.coventrypublicschools.org/news"
 BASE_URL = "https://www.coventrypublicschools.org"
 FEED_URL = "https://allisonh22.github.io/coventry-news-rss/feed.xml"
 
+MAX_ARTICLES = 50
+
+ATOM_NS = "http://www.w3.org/2005/Atom"
+
+
+# ---------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------
+
+def parse_date(text):
+    """
+    Look for a date such as:
+    January 15, 2026
+    """
+    if not text:
+        return None
+
+    match = re.search(
+        r"\b("
+        r"January|February|March|April|May|June|July|August|"
+        r"September|October|November|December"
+        r")\s+\d{1,2},\s+\d{4}\b",
+        text,
+        re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    date_text = match.group(0)
+
+    try:
+        return datetime.strptime(
+            date_text,
+            "%B %d, %Y"
+        ).replace(tzinfo=timezone.utc)
+
+    except ValueError:
+        return None
+
+
+def clean_text(text):
+    """
+    Normalize whitespace.
+    """
+    if not text:
+        return ""
+
+    return re.sub(r"\s+", " ", text).strip()
+
+
+# ---------------------------------------------------------
+# Scrape Coventry Public Schools
+# ---------------------------------------------------------
+
 print("Opening Coventry Public Schools news page...")
 
 with sync_playwright() as p:
+
     browser = p.chromium.launch(headless=True)
 
     page = browser.new_page(
-        viewport={"width": 1440, "height": 1200}
+        viewport={
+            "width": 1440,
+            "height": 1200
+        }
     )
 
     page.goto(
@@ -25,8 +89,10 @@ with sync_playwright() as p:
         timeout=60000
     )
 
+    # Allow JavaScript content to finish rendering.
     page.wait_for_timeout(8000)
 
+    # Scroll to encourage lazy-loaded articles to appear.
     for _ in range(5):
         page.mouse.wheel(0, 1500)
         page.wait_for_timeout(1500)
@@ -35,24 +101,50 @@ with sync_playwright() as p:
 
     browser.close()
 
+
 print(f"Rendered page size: {len(html)} characters")
 
-soup = BeautifulSoup(html, "html.parser")
+if len(html) < 1000:
+    print("ERROR: Rendered page is unexpectedly small.")
+    raise SystemExit(1)
+
+
+# ---------------------------------------------------------
+# Parse HTML
+# ---------------------------------------------------------
+
+soup = BeautifulSoup(
+    html,
+    "html.parser"
+)
 
 articles = []
+seen_urls = set()
+
+
+# ---------------------------------------------------------
+# Find article links
+# ---------------------------------------------------------
 
 for link in soup.find_all("a", href=True):
 
     href = link.get("href", "")
 
-    match = re.search(r"/article/(\d+)", href)
+    # Coventry article URLs look like:
+    # /article/123456
+    match = re.search(
+        r"/article/(\d+)",
+        href
+    )
 
     if not match:
         continue
 
     article_id = match.group(1)
 
-    title = link.get_text(" ", strip=True)
+    title = clean_text(
+        link.get_text(" ", strip=True)
+    )
 
     if not title:
         continue
@@ -62,69 +154,97 @@ for link in soup.find_all("a", href=True):
         f"/article/{article_id}"
     )
 
-    if any(a["url"] == article_url for a in articles):
+    if article_url in seen_urls:
         continue
 
-    parent = link
-    date_text = ""
+    seen_urls.add(article_url)
 
-    for _ in range(8):
+    # -----------------------------------------------------
+    # Look for the publication date near the article link.
+    # -----------------------------------------------------
+
+    date_text = ""
+    published = None
+
+    parent = link
+
+    for _ in range(10):
 
         parent = parent.parent
 
         if not parent:
             break
 
-        surrounding_text = parent.get_text(
-            " ",
-            strip=True
+        surrounding_text = clean_text(
+            parent.get_text(
+                " ",
+                strip=True
+            )
         )
 
-        date_match = re.search(
-            r"(January|February|March|April|May|June|July|August|"
-            r"September|October|November|December)"
-            r"\s+\d{1,2},\s+\d{4}",
-            surrounding_text,
-            re.IGNORECASE
+        parsed_date = parse_date(
+            surrounding_text
         )
 
-        if date_match:
-            date_text = date_match.group(0)
+        if parsed_date:
+
+            published = parsed_date
+            date_text = parsed_date.strftime(
+                "%B %d, %Y"
+            )
+
             break
 
-    try:
-        published = datetime.strptime(
-            date_text,
-            "%B %d, %Y"
-        ).replace(tzinfo=timezone.utc)
+    # -----------------------------------------------------
+    # If no date was found, skip the article rather than
+    # pretending that it was published today.
+    # -----------------------------------------------------
 
-    except ValueError:
-        published = datetime.now(timezone.utc)
+    if published is None:
 
-    articles.append({
-        "title": title,
-        "url": article_url,
-        "published": published
-    })
+        print(
+            f"WARNING: No publication date found for: "
+            f"{title}"
+        )
 
-unique_articles = {
-    article["url"]: article
-    for article in articles
-}
+        continue
 
-articles = list(unique_articles.values())
+    articles.append(
+        {
+            "title": title,
+            "url": article_url,
+            "published": published
+        }
+    )
+
+
+# ---------------------------------------------------------
+# Sort newest first
+# ---------------------------------------------------------
 
 articles.sort(
     key=lambda article: article["published"],
     reverse=True
 )
 
-articles = articles[:50]
+articles = articles[:MAX_ARTICLES]
 
-print(f"Found {len(articles)} Coventry news articles.")
+
+print(
+    f"Found {len(articles)} dated Coventry news articles."
+)
+
+
+# ---------------------------------------------------------
+# Safety check
+# ---------------------------------------------------------
 
 if not articles:
-    print("ERROR: No articles found.")
+
+    print(
+        "ERROR: No dated articles were found."
+    )
+
     raise SystemExit(1)
 
 
@@ -134,59 +254,94 @@ if not articles:
 
 ET.register_namespace(
     "atom",
-    "http://www.w3.org/2005/Atom"
+    ATOM_NS
 )
 
 rss = ET.Element(
     "rss",
     {
-        "version": "2.0",
-        "xmlns:atom": "http://www.w3.org/2005/Atom"
+        "version": "2.0"
     }
 )
 
-channel = ET.SubElement(rss, "channel")
+channel = ET.SubElement(
+    rss,
+    "channel"
+)
+
+
+# ---------------------------------------------------------
+# Channel information
+# ---------------------------------------------------------
 
 ET.SubElement(
     channel,
     "title"
 ).text = "Coventry Public Schools News"
 
+
 ET.SubElement(
     channel,
     "link"
 ).text = NEWS_URL
 
+
 ET.SubElement(
     channel,
     "description"
-).text = "Latest news from Coventry Public Schools"
+).text = (
+    "Latest news from Coventry Public Schools"
+)
+
 
 ET.SubElement(
     channel,
     "language"
 ).text = "en-us"
 
+
 ET.SubElement(
     channel,
     "copyright"
 ).text = "Coventry Public Schools"
+
 
 ET.SubElement(
     channel,
     "ttl"
 ).text = "15"
 
-# RSS self-reference
+
+# ---------------------------------------------------------
+# Feed self-reference
+# ---------------------------------------------------------
+
 ET.SubElement(
     channel,
-    "{http://www.w3.org/2005/Atom}link",
+    f"{{{ATOM_NS}}}link",
     {
         "href": FEED_URL,
         "rel": "self",
         "type": "application/rss+xml"
     }
 )
+
+
+# ---------------------------------------------------------
+# Last build date
+# ---------------------------------------------------------
+
+ET.SubElement(
+    channel,
+    "lastBuildDate"
+).text = format_datetime(
+    datetime.now(timezone.utc)
+)
+
+
+# ---------------------------------------------------------
+# Add articles
+# ---------------------------------------------------------
 
 for article in articles:
 
@@ -229,7 +384,16 @@ for article in articles:
     )
 
 
+# ---------------------------------------------------------
+# Write feed.xml
+# ---------------------------------------------------------
+
 tree = ET.ElementTree(rss)
+
+ET.indent(
+    tree,
+    space="  "
+)
 
 tree.write(
     "feed.xml",
@@ -237,4 +401,8 @@ tree.write(
     xml_declaration=True
 )
 
-print("Successfully generated feed.xml.")
+
+print(
+    f"Successfully generated feed.xml "
+    f"with {len(articles)} articles."
+)
