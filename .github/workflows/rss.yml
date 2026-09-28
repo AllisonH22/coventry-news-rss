@@ -38,7 +38,7 @@ jobs:
         if: success()
         env:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_P: ${{ secrets.SMTP_P }}
           TEST_RECIPIENT: ${{ secrets.TEST_RECIPIENT }}
         run: |
           python send_news_email.py
