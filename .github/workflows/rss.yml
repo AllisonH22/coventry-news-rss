@@ -46,7 +46,7 @@ jobs:
         env:
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_P: ${{ secrets.SMTP_P }}
-          TEST_RECIPIENT: ${{ secrets.TEST_RECIPIENT }}
+          SUBSCRIBER_FILE: private-subscribers/subscribers.json
         run: |
           python send_news_email.py
 
