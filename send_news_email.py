@@ -1,3 +1,4 @@
+import json
 import os
 import smtplib
 import xml.etree.ElementTree as ET
@@ -8,6 +9,9 @@ from email.message import EmailMessage
 FEED_FILE = "feed.xml"
 LAST_SENT_FILE = "last_sent.txt"
 
+# File downloaded from the private subscriber repository
+SUBSCRIBER_FILE = os.environ["SUBSCRIBER_FILE"]
+
 
 # ---------------------------------------------------------
 # Email configuration
@@ -15,7 +19,6 @@ LAST_SENT_FILE = "last_sent.txt"
 
 SMTP_USERNAME = os.environ["SMTP_USERNAME"]
 SMTP_P = os.environ["SMTP_P"]
-TEST_RECIPIENT = os.environ["TEST_RECIPIENT"]
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -150,6 +153,73 @@ print(
 
 
 # ---------------------------------------------------------
+# Read private subscriber list
+# ---------------------------------------------------------
+
+print(
+    f"Reading subscriber list from {SUBSCRIBER_FILE}..."
+)
+
+with open(
+    SUBSCRIBER_FILE,
+    "r",
+    encoding="utf-8"
+) as file:
+
+    subscriber_data = json.load(file)
+
+
+subscribers = subscriber_data.get(
+    "subscribers",
+    []
+)
+
+
+# ---------------------------------------------------------
+# Find active subscribers
+# ---------------------------------------------------------
+
+active_subscribers = []
+
+for subscriber in subscribers:
+
+    email = subscriber.get(
+        "email",
+        ""
+    ).strip()
+
+    active = subscriber.get(
+        "active",
+        False
+    )
+
+    if email and active is True:
+
+        active_subscribers.append(
+            email
+        )
+
+
+if not active_subscribers:
+
+    print(
+        "No active subscribers found."
+    )
+
+    # We do NOT update last_sent.txt here.
+    # This means the article can be sent later
+    # after a subscriber is added.
+
+    raise SystemExit(0)
+
+
+print(
+    f"Found {len(active_subscribers)} "
+    "active subscriber(s)."
+)
+
+
+# ---------------------------------------------------------
 # Build email
 # ---------------------------------------------------------
 
@@ -169,7 +239,8 @@ Read the full article:
 Published:
 {pub_date}
 
-You are receiving this notification because you subscribed to Coventry Public Schools News.
+You are receiving this notification because you subscribed
+to Coventry Public Schools News.
 """
 
 
@@ -210,24 +281,8 @@ to Coventry Public Schools News.
 """
 
 
-message = EmailMessage()
-
-message["From"] = SMTP_USERNAME
-message["To"] = TEST_RECIPIENT
-message["Subject"] = subject
-
-message.set_content(
-    text_body
-)
-
-message.add_alternative(
-    html_body,
-    subtype="html"
-)
-
-
 # ---------------------------------------------------------
-# Send email
+# Connect to SMTP
 # ---------------------------------------------------------
 
 print(
@@ -251,15 +306,39 @@ with smtplib.SMTP(
         SMTP_P
     )
 
-    smtp.send_message(
-        message
-    )
 
+    # -----------------------------------------------------
+    # Send email to every active subscriber
+    # -----------------------------------------------------
 
-print(
-    f"Email successfully sent to "
-    f"{TEST_RECIPIENT}"
-)
+    for recipient in active_subscribers:
+
+        print(
+            f"Sending email to {recipient}"
+        )
+
+        message = EmailMessage()
+
+        message["From"] = SMTP_USERNAME
+        message["To"] = recipient
+        message["Subject"] = subject
+
+        message.set_content(
+            text_body
+        )
+
+        message.add_alternative(
+            html_body,
+            subtype="html"
+        )
+
+        smtp.send_message(
+            message
+        )
+
+        print(
+            f"Successfully sent to {recipient}"
+        )
 
 
 # ---------------------------------------------------------
@@ -277,4 +356,8 @@ with open(
 
 print(
     "Updated last_sent.txt"
+)
+
+print(
+    "Email notification process complete."
 )
