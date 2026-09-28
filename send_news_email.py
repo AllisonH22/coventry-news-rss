@@ -6,20 +6,16 @@ from email.message import EmailMessage
 
 
 FEED_FILE = "feed.xml"
+LAST_SENT_FILE = "last_sent.txt"
 
 
 # ---------------------------------------------------------
-# Read credentials from GitHub Actions secrets
+# Email configuration
 # ---------------------------------------------------------
 
 SMTP_USERNAME = os.environ["SMTP_USERNAME"]
-SMTP_P = os.environ["SMTP_P"]
+SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
 TEST_RECIPIENT = os.environ["TEST_RECIPIENT"]
-
-
-# ---------------------------------------------------------
-# Gmail SMTP settings
-# ---------------------------------------------------------
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
@@ -37,22 +33,33 @@ root = tree.getroot()
 channel = root.find("channel")
 
 if channel is None:
-    raise RuntimeError("RSS feed does not contain a channel.")
+    raise RuntimeError(
+        "RSS feed does not contain a channel."
+    )
 
-
-# ---------------------------------------------------------
-# Get newest article
-# ---------------------------------------------------------
 
 item = channel.find("item")
 
 if item is None:
-    raise RuntimeError("RSS feed does not contain any articles.")
+    raise RuntimeError(
+        "RSS feed does not contain any articles."
+    )
 
 
-title = item.findtext("title", "").strip()
-link = item.findtext("link", "").strip()
-pub_date = item.findtext("pubDate", "").strip()
+title = item.findtext(
+    "title",
+    ""
+).strip()
+
+link = item.findtext(
+    "link",
+    ""
+).strip()
+
+pub_date = item.findtext(
+    "pubDate",
+    ""
+).strip()
 
 
 if not title or not link:
@@ -66,10 +73,90 @@ print(f"Article URL: {link}")
 
 
 # ---------------------------------------------------------
+# Read last-sent article
+# ---------------------------------------------------------
+
+last_sent = ""
+
+if os.path.exists(LAST_SENT_FILE):
+
+    with open(
+        LAST_SENT_FILE,
+        "r",
+        encoding="utf-8"
+    ) as file:
+
+        last_sent = file.read().strip()
+
+
+# ---------------------------------------------------------
+# Check whether this article was already sent
+# ---------------------------------------------------------
+
+if last_sent == link:
+
+    print(
+        "Newest article has already been emailed."
+    )
+
+    print(
+        "No email will be sent."
+    )
+
+    raise SystemExit(0)
+
+
+# ---------------------------------------------------------
+# First-run handling
+# ---------------------------------------------------------
+
+if not last_sent:
+
+    print(
+        "No previous article found."
+    )
+
+    print(
+        "This appears to be the first run."
+    )
+
+    print(
+        "The current article will be recorded "
+        "without sending an email."
+    )
+
+    with open(
+        LAST_SENT_FILE,
+        "w",
+        encoding="utf-8"
+    ) as file:
+
+        file.write(link)
+
+    raise SystemExit(0)
+
+
+# ---------------------------------------------------------
+# A new article has been detected
+# ---------------------------------------------------------
+
+print(
+    "NEW ARTICLE DETECTED!"
+)
+
+print(
+    "Preparing email..."
+)
+
+
+# ---------------------------------------------------------
 # Build email
 # ---------------------------------------------------------
 
-subject = f"New Coventry Public Schools News: {title}"
+subject = (
+    "New Coventry Public Schools News: "
+    + title
+)
 
 
 text_body = f"""New Coventry Public Schools News
@@ -82,7 +169,7 @@ Read the full article:
 Published:
 {pub_date}
 
-This is a test notification from the Coventry Public Schools RSS project.
+You are receiving this notification because you subscribed to Coventry Public Schools News.
 """
 
 
@@ -114,7 +201,8 @@ Read the full article
 <hr>
 
 <p style="color:#666; font-size:12px;">
-This is a test notification from the Coventry Public Schools RSS project.
+You are receiving this notification because you subscribed
+to Coventry Public Schools News.
 </p>
 
 </body>
@@ -128,7 +216,10 @@ message["From"] = SMTP_USERNAME
 message["To"] = TEST_RECIPIENT
 message["Subject"] = subject
 
-message.set_content(text_body)
+message.set_content(
+    text_body
+)
+
 message.add_alternative(
     html_body,
     subtype="html"
@@ -139,7 +230,10 @@ message.add_alternative(
 # Send email
 # ---------------------------------------------------------
 
-print("Connecting to Gmail SMTP...")
+print(
+    "Connecting to Gmail SMTP..."
+)
+
 
 with smtplib.SMTP(
     SMTP_SERVER,
@@ -154,12 +248,33 @@ with smtplib.SMTP(
 
     smtp.login(
         SMTP_USERNAME,
-        SMTP_P
+        SMTP_PASSWORD
     )
 
-    smtp.send_message(message)
+    smtp.send_message(
+        message
+    )
 
 
 print(
-    f"Test email successfully sent to {TEST_RECIPIENT}"
+    f"Email successfully sent to "
+    f"{TEST_RECIPIENT}"
+)
+
+
+# ---------------------------------------------------------
+# Remember this article
+# ---------------------------------------------------------
+
+with open(
+    LAST_SENT_FILE,
+    "w",
+    encoding="utf-8"
+) as file:
+
+    file.write(link)
+
+
+print(
+    "Updated last_sent.txt"
 )
