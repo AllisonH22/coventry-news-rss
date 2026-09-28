@@ -14,7 +14,7 @@ LAST_SENT_FILE = "last_sent.txt"
 # ---------------------------------------------------------
 
 SMTP_USERNAME = os.environ["SMTP_USERNAME"]
-SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
+SMTP_P = os.environ["SMTP_P"]
 TEST_RECIPIENT = os.environ["TEST_RECIPIENT"]
 
 SMTP_SERVER = "smtp.gmail.com"
