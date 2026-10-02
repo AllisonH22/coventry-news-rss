@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Fri, 02 Oct 2026 14:04:41 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 02 Oct 2026 19:11:26 +0000</lastBuildDate>
+    <item>
+      <title>Upcoming Road Construction on Lake Road: Correction</title>
+      <link>https://www.coventrypublicschools.org/article/3167425</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3167425</guid>
+      <pubDate>Fri, 02 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: Upcoming Road Construction on Lake Road: Correction</description>
+    </item>
     <item>
       <title>Upcoming Road Construction on Lake Road</title>
       <link>https://www.coventrypublicschools.org/article/3166440</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3034570</guid>
       <pubDate>Thu, 16 Jul 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: Pop Up with the Principals- Join Us at the Coventry Farmers Market!</description>
-    </item>
-    <item>
-      <title>Coventry Public Schools Counseling Support Available</title>
-      <link>https://www.coventrypublicschools.org/article/3022583</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3022583</guid>
-      <pubDate>Tue, 07 Jul 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: Coventry Public Schools Counseling Support Available</description>
     </item>
   </channel>
 </rss>
