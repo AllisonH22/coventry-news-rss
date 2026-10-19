@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Mon, 19 Oct 2026 14:02:31 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 19 Oct 2026 19:47:53 +0000</lastBuildDate>
+    <item>
+      <title>CPS Upstander Anti-Bullying Program</title>
+      <link>https://www.coventrypublicschools.org/article/3199823</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3199823</guid>
+      <pubDate>Mon, 19 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: CPS Upstander Anti-Bullying Program</description>
+    </item>
     <item>
       <title>CGS: Walk-A-Thon</title>
       <link>https://www.coventrypublicschools.org/article/3189354</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3058541</guid>
       <pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: Coventry High School Celebrates Record-Breaking Advanced Placement Success and National AP Scholar Recognition</description>
-    </item>
-    <item>
-      <title>Registration - August 2026</title>
-      <link>https://www.coventrypublicschools.org/article/3058108</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3058108</guid>
-      <pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: Registration - August 2026</description>
     </item>
   </channel>
 </rss>
