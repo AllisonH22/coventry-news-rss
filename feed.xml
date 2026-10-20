@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Tue, 20 Oct 2026 12:55:39 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 20 Oct 2026 17:55:14 +0000</lastBuildDate>
+    <item>
+      <title>October 2026 Coventry Spotlight</title>
+      <link>https://www.coventrypublicschools.org/article/3202955</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3202955</guid>
+      <pubDate>Tue, 20 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: October 2026 Coventry Spotlight</description>
+    </item>
     <item>
       <title>CPS Upstander Anti-Bullying Program</title>
       <link>https://www.coventrypublicschools.org/article/3199823</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3058554</guid>
       <pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: CPS Families - Capitol Region Emergency Services Team Training 8-6-26</description>
-    </item>
-    <item>
-      <title>Coventry High School Celebrates Record-Breaking Advanced Placement Success and National AP Scholar Recognition</title>
-      <link>https://www.coventrypublicschools.org/article/3058541</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3058541</guid>
-      <pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: Coventry High School Celebrates Record-Breaking Advanced Placement Success and National AP Scholar Recognition</description>
     </item>
   </channel>
 </rss>
