@@ -1,2 +1,2 @@
 # coventry-news-rss
-rss feed for news
+An RSS Feed for Coventry News 
