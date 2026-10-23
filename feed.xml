@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Fri, 23 Oct 2026 16:11:51 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2026 16:53:33 +0000</lastBuildDate>
+    <item>
+      <title>GHR: 5K Fun Run</title>
+      <link>https://www.coventrypublicschools.org/article/3210488</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3210488</guid>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: GHR: 5K Fun Run</description>
+    </item>
     <item>
       <title>CHS: Educatius Visit</title>
       <link>https://www.coventrypublicschools.org/article/3210398</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3078161</guid>
       <pubDate>Mon, 17 Aug 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: CNH/CHS: PickUp Patrol for Grades 6-12</description>
-    </item>
-    <item>
-      <title>PM Transportation Changes for K-5 Students</title>
-      <link>https://www.coventrypublicschools.org/article/3072597</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3072597</guid>
-      <pubDate>Wed, 12 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: PM Transportation Changes for K-5 Students</description>
     </item>
   </channel>
 </rss>
