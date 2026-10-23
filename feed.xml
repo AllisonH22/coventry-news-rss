@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Fri, 23 Oct 2026 15:33:58 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2026 16:11:51 +0000</lastBuildDate>
+    <item>
+      <title>CHS: Educatius Visit</title>
+      <link>https://www.coventrypublicschools.org/article/3210398</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3210398</guid>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: CHS: Educatius Visit</description>
+    </item>
     <item>
       <title>K-5 Literacy Night Success!</title>
       <link>https://www.coventrypublicschools.org/article/3209912</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3072597</guid>
       <pubDate>Wed, 12 Aug 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: PM Transportation Changes for K-5 Students</description>
-    </item>
-    <item>
-      <title>Annual Update Now Open/Bus Routes Now Published</title>
-      <link>https://www.coventrypublicschools.org/article/3063758</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3063758</guid>
-      <pubDate>Thu, 06 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: Annual Update Now Open/Bus Routes Now Published</description>
     </item>
   </channel>
 </rss>
