@@ -8,7 +8,14 @@
     <copyright>Coventry Public Schools</copyright>
     <ttl>15</ttl>
     <atom:link href="https://allisonh22.github.io/coventry-news-rss/feed.xml" rel="self" type="application/rss+xml" />
-    <lastBuildDate>Fri, 23 Oct 2026 13:25:40 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 23 Oct 2026 14:26:08 +0000</lastBuildDate>
+    <item>
+      <title>K-5 Literacy Night Success!</title>
+      <link>https://www.coventrypublicschools.org/article/3209912</link>
+      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3209912</guid>
+      <pubDate>Fri, 23 Oct 2026 00:00:00 +0000</pubDate>
+      <description>Coventry Public Schools: K-5 Literacy Night Success!</description>
+    </item>
     <item>
       <title>October 2026 Coventry Spotlight</title>
       <link>https://www.coventrypublicschools.org/article/3202955</link>
@@ -141,13 +148,6 @@
       <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3063758</guid>
       <pubDate>Thu, 06 Aug 2026 00:00:00 +0000</pubDate>
       <description>Coventry Public Schools: Annual Update Now Open/Bus Routes Now Published</description>
-    </item>
-    <item>
-      <title>CPS Families - Capitol Region Emergency Services Team Training 8-6-26</title>
-      <link>https://www.coventrypublicschools.org/article/3058554</link>
-      <guid isPermaLink="true">https://www.coventrypublicschools.org/article/3058554</guid>
-      <pubDate>Tue, 04 Aug 2026 00:00:00 +0000</pubDate>
-      <description>Coventry Public Schools: CPS Families - Capitol Region Emergency Services Team Training 8-6-26</description>
     </item>
   </channel>
 </rss>
